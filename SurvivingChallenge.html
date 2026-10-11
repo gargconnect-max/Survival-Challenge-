@@ -1,0 +1,198 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Survival Code Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #1e1e1e;
+      color: #f0f0f0;
+    }
+    h1 { color: #4CAF50; }
+    input, button {
+      padding: 10px;
+      margin: 10px;
+      border-radius: 5px;
+      border: none;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover { background-color: #45a049; }
+    #output { margin-top: 20px; font-size: 18px; }
+    #healthBar {
+      width: 300px; height: 25px; background: red;
+      margin: 20px auto; border-radius: 5px;
+    }
+    #healthFill {
+      height: 100%; background: limegreen; width: 100%;
+      border-radius: 5px;
+    }
+    #timer {
+      font-size: 20px; margin-top: 10px; color: #FFD700;
+    }
+    #codesList {
+      text-align: left;
+      width: 300px;
+      margin: 20px auto;
+      background: #333;
+      padding: 15px;
+      border-radius: 8px;
+    }
+    #codesList h2 { color: #4CAF50; text-align: center; }
+    #codesList ul { list-style: none; padding: 0; }
+    #codesList li { margin: 5px 0; }
+  </style>
+</head>
+<body>
+  <h1>🌿 Survival Code Game 🌿</h1>
+  <p id="challenge">Press "Start" to begin revision!</p>
+  <input id="codeInput" placeholder="Enter code here">
+  <button onclick="playGame()">Use Code</button>
+  <button onclick="startRevisionPhase()">Start</button>
+  <p id="output"></p>
+
+  <!-- Health Bar -->
+  <div id="healthBar"><div id="healthFill"></div></div>
+  <p>Health: <span id="healthValue">100</span></p>
+
+  <!-- Timer -->
+  <p id="timer">Time left: 90s</p>
+
+  <!-- Visible Codes List -->
+  <div id="codesList" style="display:none;">
+    <h2>Available Codes</h2>
+    <ul>
+      <li>fodo → food</li>
+      <li>waterEYE → water</li>
+      <li>LAcasa → shelter</li>
+      <li>fireSPARK → fire</li>
+      <li>stormX → storm</li>
+      <li>wildRUN → animal attack</li>
+      <li>tasety → tasty meal</li>
+      <li>energyUP → stamina boost</li>
+      <li>fight! → attack</li>
+      <li>restZZZ → rest</li>
+    </ul>
+  </div>
+
+  <script>
+    // 🧠 Dictionary
+    const codes = {
+      "fodo": "food",
+      "waterEYE": "water",
+      "LAcasa": "shelter",
+      "fireSPARK": "fire",
+      "stormX": "storm",
+      "wildRUN": "animal attack",
+      "tasety": "tasty meal",
+      "energyUP": "stamina boost",
+      "fight!": "attack",
+      "restZZZ": "rest"
+    };
+
+    let health = 100;
+    let timer = 90;
+    let countdown;
+    let currentCode = "";
+
+    // 🧩 Revision Phase
+    function startRevisionPhase() {
+      document.getElementById("codesList").style.display = "block";
+      document.getElementById("output").innerText = "🧠 Revise the codes! Game starts in 90 seconds...";
+      timer = 90;
+      countdown = setInterval(() => {
+        timer--;
+        document.getElementById("timer").innerText = "Game starts in: " + timer + "s";
+        if(timer <= 0) {
+          clearInterval(countdown);
+          document.getElementById("codesList").style.display = "none";
+          document.getElementById("output").innerText = "🔥 The survival challenge begins!";
+          newChallenge();
+        }
+      }, 1000);
+    }
+
+    // 🎯 Random Challenge
+    function newChallenge() {
+      const challenges = [
+        {need: "food", code: "fodo"},
+        {need: "water", code: "waterEYE"},
+        {need: "shelter", code: "LAcasa"},
+        {need: "fire", code: "fireSPARK"},
+        {need: "storm protection", code: "stormX"},
+        {need: "fight", code: "fight!"},
+        {need: "rest", code: "restZZZ"},
+        {need: "energy boost", code: "energyUP"},
+        {need: "tasty meal", code: "tasety"},
+        {need: "animal attack", code: "wildRUN"}
+      ];
+      const random = challenges[Math.floor(Math.random() * challenges.length)];
+      currentCode = random.code;
+      document.getElementById("challenge").innerText =
+        "⚡ Challenge: Type the code for " + random.need + "!";
+      resetTimer();
+    }
+
+    // ⚙️ Game Logic
+    function playGame() {
+      const code = document.getElementById("codeInput").value.trim();
+      if(code === currentCode) {
+        document.getElementById("output").innerText = "✅ Correct! You survived.";
+        health += 10;
+      } else {
+        document.getElementById("output").innerText = "❌ Wrong code! You lost health.";
+        health -= 10;
+      }
+      updateHealth();
+      checkWinLose();
+      newChallenge();
+    }
+
+    // 🩺 Health Bar Update
+    function updateHealth() {
+      if(health > 175) health = 175;
+      if(health < 0) health = 0;
+      document.getElementById("healthValue").innerText = health;
+      document.getElementById("healthFill").style.width = (health/175*100) + "%";
+    }
+
+    // ⏳ Timer Logic
+    function resetTimer() {
+      clearInterval(countdown);
+      timer = 15;
+      document.getElementById("timer").innerText = "Time left: " + timer + "s";
+      countdown = setInterval(() => {
+        timer--;
+        document.getElementById("timer").innerText = "Time left: " + timer + "s";
+        if(timer <= 0) {
+          clearInterval(countdown);
+          document.getElementById("output").innerText = "⏰ Time's up! You lost 10 health.";
+          health -= 10;
+          updateHealth();
+          checkWinLose();
+          newChallenge();
+        }
+      }, 1000);
+    }
+
+    // 🏆 Win/Lose Conditions
+    function checkWinLose() {
+      if(health <= 0) {
+        clearInterval(countdown);
+        document.getElementById("output").innerText = "💀 You lost! Survival failed.";
+        document.getElementById("challenge").innerText = "";
+      }
+      if(health >= 175) {
+        clearInterval(countdown);
+        document.getElementById("output").innerText = "🏆 You win! Ultimate survivor!";
+        document.getElementById("challenge").innerText = "";
+      }
+    }
+  </script>
+</body>
+</html>
